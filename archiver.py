@@ -8,6 +8,7 @@ import os
 import sys
 import shutil
 import logging
+from logging import handlers
 import time
 
 
@@ -38,7 +39,7 @@ def move_file(row):
     logging.info(f'Creating path {destination_file_path}...')
     try:
         os.makedirs(os.path.dirname(destination_file_path), exist_ok=True)
-        logging.info(f'Created sucessfully.')
+        logging.info('Created sucessfully.')
     except:
         logging.error(
             f'Creation failed: {os.path.dirname(destination_file_path)}.')
@@ -79,15 +80,15 @@ def copy_file(row):
     logging.info(f'Creating path {destination_file_path}...')
     try:
         os.makedirs(os.path.dirname(destination_file_path), exist_ok=True)
-        logging.info(f'Created sucessfully.')
+        logging.info('Created sucessfully.')
     except:
         logging.error(
             f'Creation failed: {os.path.dirname(destination_file_path)}.')
 
-    logging.info(f'Copying: {source_file_path} to {destination_file_path}')
+    logging.info('Copying: {} to {}'.format(source_file_path, destination_file_path))
     try:
         shutil.copy(source_file_path, destination_file_path)
-        logging.info(f'Copy completed sucessfully.')
+        logging.info('Copy completed sucessfully.')
 
     except:
         logging.error(
@@ -123,14 +124,18 @@ if __name__ == "__main__":
         ignore_lst = [ig_str for ig_str in sys.argv[5:]]
         logpath = os.path.join(dst_path, 'archiver.log')
 
+    #log file and console output setup
     os.makedirs(os.path.dirname(logpath), exist_ok=True)
 
-    logging.basicConfig(level=logging.INFO,
-                        format="%(asctime)s [%(levelname)s] %(message)s",
-                        filename=logpath)
-    console = logging.StreamHandler()
-    console.setLevel(logging.INFO)
-    logging.getLogger().addHandler(console)
+    formatter = logging.Formatter("%(asctime)s [%(levelname)s] %(message)s")
+
+    log_file_handler = handlers.RotatingFileHandler(logpath, maxBytes=1048576, backupCount=5)
+    log_file_handler.setFormatter(formatter)
+    log_file_handler.setLevel(logging.INFO)
+
+    logging.basicConfig(level=logging.INFO, format="[%(levelname)s] %(message)s")
+    logging.getLogger().addHandler(log_file_handler)
+
 
     # all files above the specified age in the source directory are accounted for in a dataframe
     # the appropriate function/action is applied against each row in the dataframe
