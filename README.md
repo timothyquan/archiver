@@ -9,7 +9,9 @@ Warning: deletes empty folders!
 
 Run the with arguments as follows:
 
+```
 python archiver.py <ACTION> <AGE_IN_DAYS> <SOURCE_PATH> <DESTINATION_PATH> <IGNORE_STRING1> <IGNORE_STRING2> <IGNORE_STRING...> <IGNORE_STRING10000000>
+```
 
 Actions are as follows: 'copy', 'move', 'delete'
 
@@ -19,17 +21,17 @@ If executing in a windows environment, use forward slashes instead of backslashe
 
 'Ignore_strings' aren't handled gracefully in any way, beware. ie. they are just looked for in file path names as a plain string, no wild cards, etc.
 
-'''
+```
 python archiver.py copy 31 C:/temp/lotsoffiles/ C:/temp/filearchive/ .ignorefolder donotdelete.text keepme.avi
-'''
+```
 
-'''
+```
 python archiver.py move 31 C:/temp/lotsoffiles/ C:/temp/filearchive/ .ignorefolder donotdelete.text keepme.avi
-'''
+```
 
-'''
+```
 python archiver.py delete 31 C:/temp/lotsoffiles/ .ignorefolder donotdelete.text keepme.avi
-'''
+```
 
 ### Prerequisites
 
