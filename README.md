@@ -9,7 +9,7 @@ Warning: deletes empty folders!
 
 Run the with arguments as follows:
 
-python archiver.py <SOURCE_PATH> <DESTINATION_PATH> <AGE_IN_DAYS>
+python archiver.py <SOURCE_PATH> <DESTINATION_PATH> <AGE_IN_DAYS> <IGNORE_STRING1> <IGNORE_STRING2> <IGNORE_STRING3>
 
 ### Prerequisites
 
