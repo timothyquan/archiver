@@ -5,6 +5,8 @@ Writes log to destination folder, or if the action is 'delete', log goes in the 
 
 Warning: deletes empty folders!
 
+Warning: Ages are imprecise, both input and the age of the files are cast to an integer for full days only.
+
 ## Getting Started
 
 Run the with arguments as follows:
