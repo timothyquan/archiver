@@ -35,8 +35,6 @@ python archiver.py delete 31 C:/temp/lotsoffiles/ .ignorefolder donotdelete.text
 
 ### Prerequisites
 
-What things you need to install the software and how to install them
-
 Requires pandas: 
 
 ```
