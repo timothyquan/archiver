@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 __author__ = "Tim Quan"
 __license__ = "MIT"
 __version__ = "1.0"
@@ -9,6 +10,7 @@ import sys
 import shutil
 import logging
 from logging import handlers
+logger = logging.getLogger(__name__)
 import time
 
 
@@ -36,21 +38,21 @@ def move_file(row):
     destination_file_path = os.path.join(str(row['destination_path']) + str(row['subdir']),
                                          row['file_name'])
 
-    logging.info(f'Creating path {destination_file_path}...')
+    logger.info(f'Creating path {destination_file_path}...')
     try:
         os.makedirs(os.path.dirname(destination_file_path), exist_ok=True)
-        logging.info('Created sucessfully.')
+        logger.info('Created sucessfully.')
     except:
-        logging.error(
+        logger.error(
             f'Creation failed: {os.path.dirname(destination_file_path)}.')
 
-    logging.info(f'Moving: {source_file_path} to {destination_file_path}')
+    logger.info(f'Moving: {source_file_path} to {destination_file_path}')
     try:
         shutil.move(source_file_path, destination_file_path)
-        logging.info(f'Moved completed sucessfully.')
+        logger.info(f'Moved completed sucessfully.')
 
     except:
-        logging.error(
+        logger.error(
             f'Move failed: {source_file_path} to {destination_file_path}')
 
 
@@ -64,12 +66,12 @@ def remove_empty_dirs(source_path, age_lmt):
         #len(os.listdir(path)) returns 0 if the path is empty
         #path != source_path prevents deletion of the source path root
         if len(os.listdir(path)) == 0 and path != source_path and is_old:
-            logging.info(f'Removing empty directory: {path}')
+            logger.info(f'Removing empty directory: {path}')
             try:
                 os.rmdir(path)
-                logging.info('Removed directory successfully.')
+                logger.info('Removed directory successfully.')
             except:
-                logging.error(f'Removing directory failed: {path}')
+                logger.error(f'Removing directory failed: {path}')
 
 
 def copy_file(row):
@@ -77,21 +79,21 @@ def copy_file(row):
     destination_file_path = os.path.join(str(row['destination_path']) + str(row['subdir']),
                                          row['file_name'])
 
-    logging.info(f'Creating path {destination_file_path}...')
+    logger.info(f'Creating path {destination_file_path}...')
     try:
         os.makedirs(os.path.dirname(destination_file_path), exist_ok=True)
-        logging.info('Created sucessfully.')
+        logger.info('Created sucessfully.')
     except:
-        logging.error(
+        logger.error(
             f'Creation failed: {os.path.dirname(destination_file_path)}.')
 
-    logging.info('Copying: {} to {}'.format(source_file_path, destination_file_path))
+    logger.info('Copying: {} to {}'.format(source_file_path, destination_file_path))
     try:
         shutil.copy(source_file_path, destination_file_path)
-        logging.info('Copy completed sucessfully.')
+        logger.info('Copy completed sucessfully.')
 
     except:
-        logging.error(
+        logger.error(
             f'Copy failed: {source_file_path} to {destination_file_path}')
 
 
@@ -100,45 +102,77 @@ def delete_file(row):
     destination_file_path = os.path.join(str(row['destination_path']) + str(row['subdir']),
                                          row['file_name'])
                                          
-    logging.info(f'Deleting: {source_file_path}')
+    logger.info(f'Deleting: {source_file_path}')
     try:
         os.remove(source_file_path)
-        logging.info('Delete completed sucessfully.')
+        logger.info('Delete completed sucessfully.')
 
     except:
-        logging.error(
+        logger.error(
             f'Delete failed: {source_file_path}')
 
 
+def get_logger(logger_name, log_path,  log_level):
+    '''Function to configure and return a logger
+    Accepts a logger_name, path, and logging level
+    ('debug', 'info', 'warn', 'error', 'critical')'''
+
+    log_levels = { 'debug' : logging.DEBUG,
+        'info' : logging.INFO,
+        'warn' : logging.WARN,
+        'error' : logging.ERROR,
+        'critical' : logging.CRITICAL
+    }
+
+    logger = logging.getLogger(logger_name)
+    formatter = logging.Formatter("%(asctime)s [%(levelname)s] %(message)s")
+
+    log_file_handler = handlers.RotatingFileHandler(log_path, maxBytes=1048576, backupCount=5)
+    log_file_handler.setFormatter(formatter)
+    log_file_handler.setLevel(log_levels[log_level])
+
+    log_console_handler = logging.StreamHandler(sys.stdout)
+    log_console_handler.setFormatter(formatter)
+    log_console_handler.setLevel(log_levels[log_level])
+
+    logger.addHandler(log_file_handler)
+    logger.addHandler(log_console_handler)
+    logger.setLevel(log_levels[log_level])
+
+    #logging.basicConfig(level=logging.DEBUG, filename=log_path)
+
+    return logger
+
+
+
 if __name__ == "__main__":
+    log_path = sys.argv[0].replace('py', 'log')
     action = sys.argv[1]
     age_lmt = sys.argv[2]
     src_path = sys.argv[3]
-
-    # set up logging with console and file output
     if action.lower() == 'delete':
         ignore_lst = [ig_str for ig_str in sys.argv[4:]]
-        logpath = os.path.join(src_path, 'archiver.log')
     else:
         dst_path = sys.argv[4]
         ignore_lst = [ig_str for ig_str in sys.argv[5:]]
-        logpath = os.path.join(dst_path, 'archiver.log')
+    os.makedirs(os.path.dirname(log_path), exist_ok=True)
 
-    #log file and console output setup
-    os.makedirs(os.path.dirname(logpath), exist_ok=True)
+    #set up logger and introduce the log entries
+    logger = get_logger('archiver', log_path, 'info')
+    logger.info('###############################################################')
+    logger.info('Running archiver')
+    logger.info(f'Action: {action}')
+    logger.info(f'Age Limit: {age_lmt}')
+    logger.info(f'Source Path {src_path}')
+    if dst_path != '':
+        logger.info(f'Destination Path: {dst_path}')
+    logger.info(f'Ignore List: {ignore_lst}')
+    logger.info('###############################################################')
 
-    formatter = logging.Formatter("%(asctime)s [%(levelname)s] %(message)s")
-
-    log_file_handler = handlers.RotatingFileHandler(logpath, maxBytes=1048576, backupCount=5)
-    log_file_handler.setFormatter(formatter)
-    log_file_handler.setLevel(logging.INFO)
-
-    logging.basicConfig(level=logging.INFO, format="[%(levelname)s] %(message)s")
-    logging.getLogger().addHandler(log_file_handler)
 
 
-    # all files above the specified age in the source directory are accounted for in a dataframe
-    # the appropriate function/action is applied against each row in the dataframe
+    #all files above the specified age in the source directory are accounted for in a dataframe
+    #the appropriate function/action is applied against each row in the dataframe
     if action.lower() == 'copy':
         file_df = list_files(src_path, age_lmt, ignore_lst, dst_path=dst_path)
         file_df.apply(copy_file, axis=1)
