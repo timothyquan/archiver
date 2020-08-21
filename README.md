@@ -1,7 +1,7 @@
 # ARCHIVER
 Simple script to archive files a of a specified age from a source to destination while maintaining folder structure.
 
-Writes log to destination folder, or if the action is 'delete', log goes in the source folder.
+Writes log to script folder.
 
 Warning: deletes empty folders!
 
